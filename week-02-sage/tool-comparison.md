@@ -15,18 +15,18 @@
 
 | Tool | Response Time | Quality | Notes |
 |------|---------------|---------|-------|
-| Gemini |  Medium  |    4.5    | It accurately explained AI in around 100 words |
-| Claude | Slow | 5 | [Your notes] |
-| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+| Gemini |  Medium  |    5    | The structure was good overall, it included a bulleted list and kept the output concise |
+| Claude | Slow | 5 | Gave an explaination on AI that someone who has never heard of it before could understand |
+| ChatGPT | Fast | 5 | Similar to Claude, provided a basic explaination of AI |
 
 ### Prompt 2: Creative Task
 **Prompt**: "Write a haiku about debugging code at 2 AM."
 
 | Tool | Response Time | Quality | Notes |
 |------|---------------|---------|-------|
-| Gemini | [fast/medium/slow] | [score/5] | [Your notes] |
-| Claude | [fast/medium/slow] | [score/5] | [Your notes] |
-| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+| Gemini | Fast | 5 | The outputted haiku was: "Screen glows in the dark, One misplaced bracket found now, Finally, I sleep." Then Gemini asks if the user wants to write another one. |
+| Claude | Medium | [score/5] | [Your notes] |
+| ChatGPT | Fast | [score/5] | [Your notes] |
 
 ### Prompt 3: Information Retrieval
 **Prompt**: "List 5 key differences between machine learning and traditional programming. 
