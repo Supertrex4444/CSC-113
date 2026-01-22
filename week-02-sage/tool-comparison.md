@@ -1,0 +1,64 @@
+# AI Tool Comparison - Week 2
+
+## Test Date: 1/22/2026
+
+## Tools Tested
+1. Gemini 2.5 Flash
+2. Claude (free)
+3. ChatGPT 3.5
+
+## Test Results
+
+### Prompt 1: Simple Explanation Task
+**Prompt**: "Explain what artificial intelligence is to someone who has never heard of it before. Keep it under 100 words."
+
+
+| Tool | Response Time | Quality | Notes |
+|------|---------------|---------|-------|
+| Gemini |  Medium  |    4.5    | It accurately explained AI in around 100 words |
+| Claude | Slow | 5 | [Your notes] |
+| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+
+### Prompt 2: Creative Task
+**Prompt**: "Write a haiku about debugging code at 2 AM."
+
+| Tool | Response Time | Quality | Notes |
+|------|---------------|---------|-------|
+| Gemini | [fast/medium/slow] | [score/5] | [Your notes] |
+| Claude | [fast/medium/slow] | [score/5] | [Your notes] |
+| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+
+### Prompt 3: Information Retrieval
+**Prompt**: "List 5 key differences between machine learning and traditional programming. 
+Format as a comparison table."
+
+| Tool | Response Time | Quality | Notes |
+|------|---------------|---------|-------|
+| Gemini | [fast/medium/slow] | [score/5] | [Your notes] |
+| Claude | [fast/medium/slow] | [score/5] | [Your notes] |
+| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+
+### Prompt 4: Problem-Solving
+**Prompt**: "I need to learn GitHub for a college course. Create a 30-day learning plan with 
+specific daily tasks. Keep each day under 30 minutes of work."
+
+| Tool | Response Time | Quality | Notes |
+|------|---------------|---------|-------|
+| Gemini | [fast/medium/slow] | [score/5] | [Your notes] |
+| Claude | [fast/medium/slow] | [score/5] | [Your notes] |
+| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+
+## Comparative Analysis
+After testing four prompts on Gemini, Claude, and Chat GPT, I was able to determine some key differences between the AI tools. 
+Gemini is built towards giving the fastest answers to my prompts. Claude provided the most detailed and professional responses. 
+ChatGPT was more conversational than the other two models.
+
+There seems to be a time and a place for each AI tool. If I needed consistent and quick answers, I would use Gemini. 
+When programming software or needing very detailed information Claude would be the best option. 
+If the goal of talking to an AI was for the conversation aspect itself, I would use ChatGPT.
+
+
+## My Choice for Primary Tool
+**Tool**: Claude
+**Reasoning**: Claude works best for deep programming tasks. Although it is not as fast as Gemini, I prefer higher quality answers over getting answers quickly
+**Backup Plan**: Temporarily use Gemini
