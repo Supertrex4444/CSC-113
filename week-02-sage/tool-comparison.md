@@ -25,8 +25,8 @@
 | Tool | Response Time | Quality | Notes |
 |------|---------------|---------|-------|
 | Gemini | Fast | 5 | The outputted haiku was: "Screen glows in the dark, One misplaced bracket found now, Finally, I sleep." Then Gemini asks if the user wants to write another one. |
-| Claude | Medium | [score/5] | [Your notes] |
-| ChatGPT | Fast | [score/5] | [Your notes] |
+| Claude | Medium | 5 | The outputted haiku was: "Bleary eyes still search for that semicolon lost—coffee grows too cold" |
+| ChatGPT | Fast | 5 | The outputted haiku was: "Flickering cursor, Coffee cools beside the screen— Bug hides in plain sight." |
 
 ### Prompt 3: Information Retrieval
 **Prompt**: "List 5 key differences between machine learning and traditional programming. 
@@ -34,9 +34,9 @@ Format as a comparison table."
 
 | Tool | Response Time | Quality | Notes |
 |------|---------------|---------|-------|
-| Gemini | [fast/medium/slow] | [score/5] | [Your notes] |
-| Claude | [fast/medium/slow] | [score/5] | [Your notes] |
-| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+| Gemini | Fast | 5 | The output listed 5 key differences |
+| Claude | Slow | 5 | Similar results as Gemini |
+| ChatGPT | Medium | 5 | Similar results as Gemini |
 
 ### Prompt 4: Problem-Solving
 **Prompt**: "I need to learn GitHub for a college course. Create a 30-day learning plan with 
@@ -44,9 +44,9 @@ specific daily tasks. Keep each day under 30 minutes of work."
 
 | Tool | Response Time | Quality | Notes |
 |------|---------------|---------|-------|
-| Gemini | [fast/medium/slow] | [score/5] | [Your notes] |
-| Claude | [fast/medium/slow] | [score/5] | [Your notes] |
-| ChatGPT | [fast/medium/slow] | [score/5] | [Your notes] |
+| Gemini | Medium | 5 | Provided a 30 course and walked the user briefly through each day |
+| Claude | Slow | 5 | Wrote a detailed document on the whole course, seperated by weeks and days |
+| ChatGPT | Medium | 5 | Wrote a simple comprehensive course |
 
 ## Comparative Analysis
 After testing four prompts on Gemini, Claude, and Chat GPT, I was able to determine some key differences between the AI tools. 
