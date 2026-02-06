@@ -31,37 +31,83 @@ If you have a specific assignment or a piece of code that’s giving you an erro
 Yes
 
 ## The Back-and-forth
-[Describe the conversation. How many exchanges did it take to get 
- working code? What did you have to clarify? What did Kevin get wrong?]
+The conversation was brief but successful, everything provided by Kevin worked.
 
-### Exchange 1: [Brief description]
-**What I asked**: [Summary]
-**What Kevin said**: [Summary]
-**Result**: [Worked / Didn't work / Partially worked]
+### Exchange 1: Creating the prompt-tracker
+**What I asked**: 
+"I need a Python script called prompt-tracker.py that does these things:
 
-### Exchange 2: [Brief description]
-[Same format — add as many exchanges as you actually had]
+1. Shows a menu with options: Add Prompt, View Prompts, Search Prompts, Quit
+2. When adding a prompt, asks for:
+   - The prompt text
+   - A category (learning / creating / evaluating / other)
+   - A short note about when to use it
+3. Saves prompts to a text file called "my-prompts.txt" so they persist
+4. When viewing, shows all saved prompts organized by category
+5. When searching, lets me type a keyword and shows matching prompts
+
+Keep it simple — I'm a beginner. Use only built-in Python (no pip installs).
+Add comments explaining what each part does."
+
+
+
+**What Kevin said**: 
+
+Hey! Great project. Building a tracker is a classic way to learn how Python handles "state"—basically, how a program remembers things even after you turn it off.
+
+I've put this together using a single file. I chose to use a pipe symbol (|) to separate your data in the text file. I did this because if you use a comma (like a CSV), your program might get confused if your prompt itself contains a comma.
+
+Here is your prompt-tracker.py:
+
+
+
+**Result**: The code provided by Kevin worked.
+
+### Exchange 2: Improving the prompt-tracker
+**What I asked**: 
+"This works well, next let's improve it by adding the date each prompt was saved on."
+
+
+**What Kevin said**: 
+
+Hey! That’s a great idea. Adding a timestamp is one of the most common things we do in IT—it’s called "metadata" (data about your data). It helps you see how your prompting skills have evolved over the semester.
+
+To do this, we'll use a built-in Python module called datetime.
+
+What I’m changing: 
+
+1. Importing datetime: I'm adding from datetime import date at the very top. This gives us the tools to ask the computer what today is.
+
+2. Updating the "Save" logic: When you add a prompt, the script will now automatically grab today's date and stick it at the end of our data line.
+
+3. Updating the "View" and "Search" logic: Since our text file now has four pieces of info (category, text, note, and date), I need to update the part where we print the results so it shows that fourth piece.
+
+Here is the updated code...
+
+
+**Result**: Again, the code provided by Kevin worked well.
 
 ## The Improvement I Requested
-**What I asked for**: [Your request]
-**What changed**: [What Kevin modified]
-**Did it work?**: [Yes/No/After adjustments]
+**What I asked for**: To add the date each prompt was saved on
+
+**What changed**: The saved prompt files now include the date that they were created on them.
+
+**Did it work?**: Yes
 
 ## Code Understanding Check
 Answer honestly — this is about learning, not looking smart.
 
 1. Can I explain what every line of `prompt_tracker.py` does?
-   [Yes / Mostly / Some parts / Not really]
+   
+   Mostly
 
 2. If I had to modify this script without AI help, could I?
-   Yes, but it would require some research
+   
+   Yes, but it may require some research
 
 3. What's one thing in the code I want to understand better?
-   Writing data into files with open(), 
+   
+   Writing data into files with open()
 
 ## Reflection
-[Write 2-3 paragraphs reflecting on this experience:
- - How did AI-assisted coding compare to what you expected?
- - What did Kevin do well? What did Kevin get wrong?
- - What's the right balance between "AI writes it" and "I write it"?
- - How will you use AI coding assistance going forward?]
+AI-assisted coding nearly matched all the expectations I had for it. I would have expected it to have more issues than it did with writing the actual code but it seemed to work well. The correct balance between "AI writes it" and "I write it" is knowing how to write all of the code yourself and using AI only as a tool to learn or to help you write the things you already know. I will continue to use AI as a tool to help me learn in this way.
