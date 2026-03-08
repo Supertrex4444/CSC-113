@@ -36,13 +36,13 @@ Better but Worse
 **Bad Bot response:** 
 The Bad Bot is heartbroken and betrayed about the user wanting a short version. It explains that it's "skipping character development" but gives a re-forged prompt regardless.
 
-**Better Bot response:** [2-3 sentence summary]
+**Better Bot response:**
 The Better Bot starts by screaming "NOOOOOOOOOOOOOOOOOO!!!!!!!!!!" then explains that the antagonist is laughing at itself and the user from his floating castle. It then admits that "speed is a weapon too" and gives the user the pointed prompt to "refine their swift-strike capabilities."
 
 **What changed:**
 It was still louder and tried to be more motivating. It also prioritized siding with the user after the inital shock.
 
-**Verdict:** Better / Worse / About the Same
+**Verdict:** 
 Worse
 
 
