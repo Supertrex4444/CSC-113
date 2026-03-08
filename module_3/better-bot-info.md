@@ -5,7 +5,7 @@
 The problem I made for the Bad Bot was that it behaved as an annoying anime protagonist. This was a problem because it constantly said dialogue about the user's questions and took forever to effectively answer them.
 
 ## What specific issue made the bot hardest to use?
-It constantly complained when answering questions.
+It constantly complained when answering questions. It took forever to get to the point and spent more time doing one-liners.
 
 ## What I Changed
 I changed it to want to motivate the user instead of fixating on complaining.
