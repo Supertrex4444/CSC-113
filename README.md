@@ -22,3 +22,5 @@ How to use AI to make web based applications
 
 ## Future Improvements
 - Better visuals for Sugar Crystal items
+- Powerups
+- Improve Main Menu
