@@ -15,7 +15,7 @@ Collect Sugar Crystals and avoid running into walls
 - Score Keeping
 
 ## Try It Yourself
-https://github.com/Supertrex4444/CSC-113/blob/main/Module%205/prototype-v1-Claude.html
+https://supertrex4444.github.io/CSC-113/
 
 ## What I Learned
 How to use AI to make web based applications
