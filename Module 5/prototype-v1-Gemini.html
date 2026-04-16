@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GummyWorm.js - Sugar Rush Arcade</title>
+    <style>
+        :root {
+            --bg-color: #0f0f1b;
+            --panel-bg: rgba(255, 255, 255, 0.05);
+            --neon-pink: #ff007f;
+            --neon-green: #39ff14;
+            --neon-blue: #00d4ff;
+            --text-color: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 127, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(57, 255, 20, 0.05) 0%, transparent 40%);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        canvas {
+            display: block;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        /* UI Overlays */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 15, 27, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            background: linear-gradient(to right, var(--neon-pink), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 0, 127, 0.3);
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+        }
+
+        .stat-box {
+            padding: 10px 20px;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: transparent;
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: var(--neon-green);
+            color: black;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .keyboard-hint {
+            margin-top: 40px;
+            opacity: 0.6;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- HUD -->
+        <div class="stats">
+            <div class="stat-box">Length: <span id="score">1</span></div>
+            <div class="stat-box">Sugar Rush: <span id="high-score">0</span></div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="overlay">
+            <h1>GummyWorm.js</h1>
+            <p style="margin-top: 10px; opacity: 0.8;">A gelatinous arcade experience</p>
+            <button class="btn" onclick="startGame()">Press Space to Start</button>
+            <div class="keyboard-hint">Use ARROWS or WASD to steer</div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="overlay hidden">
+            <h1 style="color: var(--neon-pink); -webkit-text-fill-color: var(--neon-pink);">CRASHED!</h1>
+            <p id="final-score-text">Final Length: 1</p>
+            <button class="btn" onclick="startGame()">Restart (R)</button>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        /**
+         * GummyWorm.js - Logic
+         */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('high-score');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreText = document.getElementById('final-score-text');
+
+        // Game Constants
+        const GRID_SIZE = 20;
+        const TILE_COUNT = 30; // 30x30 grid
+        const CANVAS_SIZE = GRID_SIZE * TILE_COUNT;
+        
+        canvas.width = CANVAS_SIZE;
+        canvas.height = CANVAS_SIZE;
+
+        // Game State
+        let snake = [];
+        let food = { x: 15, y: 15 };
+        let dx = 0;
+        let dy = 0;
+        let nextDx = 0;
+        let nextDy = 0;
+        let score = 1;
+        let highScore = localStorage.getItem('gummyHighScore') || 0;
+        let gameActive = false;
+        let gameLoopTimeout;
+        let speed = 120;
+        let dissolveOpacity = 1;
+
+        highScoreEl.textContent = highScore;
+
+        // Initialize Snake
+        function initSnake() {
+            const startX = Math.floor(TILE_COUNT / 2);
+            const startY = Math.floor(TILE_COUNT / 2);
+            snake = [{ x: startX, y: startY }];
+            dx = 0;
+            dy = 0;
+            nextDx = 0;
+            nextDy = 0;
+            score = 1;
+            speed = 120;
+            dissolveOpacity = 1;
+            scoreEl.textContent = score;
+        }
+
+        // Input Handling
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !gameActive) startGame();
+            if (e.code === 'KeyR' && gameOverScreen.classList.contains('hidden') === false) startGame();
+
+            const key = e.key.toLowerCase();
+            
+            if ((key === 'arrowup' || key === 'w') && dy === 0) { nextDx = 0; nextDy = -1; }
+            if ((key === 'arrowdown' || key === 's') && dy === 0) { nextDx = 0; nextDy = 1; }
+            if ((key === 'arrowleft' || key === 'a') && dx === 0) { nextDx = -1; nextDy = 0; }
+            if ((key === 'arrowright' || key === 'd') && dx === 0) { nextDx = 1; nextDy = 0; }
+        });
+
+        function startGame() {
+            initSnake();
+            placeFood();
+            gameActive = true;
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            
+            // Set initial movement so it doesn't just sit there
+            nextDx = 1; 
+            
+            clearTimeout(gameLoopTimeout);
+            main();
+        }
+
+        function main() {
+            if (!gameActive) return;
+
+            if (didGameEnd()) {
+                handleGameOver();
+                return;
+            }
+
+            gameLoopTimeout = setTimeout(() => {
+                clearCanvas();
+                drawFood();
+                advanceSnake();
+                drawSnake();
+                main();
+            }, speed);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw subtle grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            for(let i=0; i<=CANVAS_SIZE; i+=GRID_SIZE) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, CANVAS_SIZE); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(CANVAS_SIZE, i); ctx.stroke();
+            }
+        }
+
+        function advanceSnake() {
+            dx = nextDx;
+            dy = nextDy;
+            
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            snake.unshift(head);
+
+            const didEatFood = snake[0].x === food.x && snake[0].y === food.y;
+            if (didEatFood) {
+                score++;
+                scoreEl.textContent = score;
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreEl.textContent = highScore;
+                    localStorage.setItem('gummyHighScore', highScore);
+                }
+                
+                // Increase speed every 5 items
+                if (score % 5 === 0 && speed > 50) speed -= 5;
+                
+                placeFood();
+            } else {
+                snake.pop();
+            }
+        }
+
+        function didGameEnd() {
+            // Hit Walls
+            const hitLeftWall = snake[0].x < 0;
+            const hitRightWall = snake[0].x > TILE_COUNT - 1;
+            const hitTopWall = snake[0].y < 0;
+            const hitBottomWall = snake[0].y > TILE_COUNT - 1;
+
+            // Hit Self
+            let hitSelf = false;
+            for (let i = 4; i < snake.length; i++) {
+                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) hitSelf = true;
+            }
+
+            return hitLeftWall || hitRightWall || hitTopWall || hitBottomWall || hitSelf;
+        }
+
+        function handleGameOver() {
+            gameActive = false;
+            finalScoreText.textContent = `Final Length: ${score}`;
+            
+            // Death Animation (Dissolve)
+            let frames = 0;
+            const animateDissolve = () => {
+                if (frames < 30) {
+                    dissolveOpacity -= 0.03;
+                    clearCanvas();
+                    drawFood();
+                    drawSnake(dissolveOpacity);
+                    frames++;
+                    requestAnimationFrame(animateDissolve);
+                } else {
+                    gameOverScreen.classList.remove('hidden');
+                }
+            };
+            animateDissolve();
+        }
+
+        function placeFood() {
+            food.x = Math.floor(Math.random() * TILE_COUNT);
+            food.y = Math.floor(Math.random() * TILE_COUNT);
+            // Don't place food on snake body
+            snake.forEach(part => {
+                if (part.x === food.x && part.y === food.y) placeFood();
+            });
+        }
+
+        function drawSnake(opacity = 0.8) {
+            snake.forEach((part, index) => {
+                const isHead = index === 0;
+                
+                // Gummy Segment Style
+                ctx.save();
+                ctx.globalAlpha = opacity;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = varToHex('--neon-green');
+                ctx.fillStyle = varToHex('--neon-green');
+
+                const centerX = part.x * GRID_SIZE + GRID_SIZE / 2;
+                const centerY = part.y * GRID_SIZE + GRID_SIZE / 2;
+                const radius = isHead ? GRID_SIZE / 1.8 : GRID_SIZE / 2.2;
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Shine/Highlight effect for gummy look
+                ctx.globalAlpha = opacity * 0.5;
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(centerX - radius/3, centerY - radius/3, radius/4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            });
+        }
+
+        function drawFood() {
+            const centerX = food.x * GRID_SIZE + GRID_SIZE / 2;
+            const centerY = food.y * GRID_SIZE + GRID_SIZE / 2;
+            
+            // Pulsing logic
+            const pulse = Math.sin(Date.now() / 150) * 3;
+            
+            ctx.save();
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = varToHex('--neon-pink');
+            ctx.fillStyle = varToHex('--neon-pink');
+            
+            // Draw a "Crystal" (Diamond/Star shape)
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - (GRID_SIZE/2 + pulse)); // Top
+            ctx.lineTo(centerX + (GRID_SIZE/2 + pulse), centerY); // Right
+            ctx.lineTo(centerX, centerY + (GRID_SIZE/2 + pulse)); // Bottom
+            ctx.lineTo(centerX - (GRID_SIZE/2 + pulse), centerY); // Left
+            ctx.closePath();
+            ctx.fill();
+
+            // Inner Glow
+            ctx.fillStyle = 'white';
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // Helper to get CSS variables in JS
+        function varToHex(varName) {
+            if (varName === '--neon-green') return '#39ff14';
+            if (varName === '--neon-pink') return '#ff007f';
+            return '#ffffff';
+        }
+
+        // Initial background draw
+        clearCanvas();
+    </script>
+</body>
+</html>
