@@ -5,16 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GummyWorm.js — Sugar Rush</title>
 
-  <!-- =====================================================
-       FONTS — Bubblegum Sans for headings, Nunito for UI
-  ====================================================== -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet" />
 
   <style>
-    /* =====================================================
-       CSS VARIABLES & RESET
-    ====================================================== */
     :root {
       --pink:        #ff6eb4;
       --pink-dim:    rgba(255,110,180,0.55);
@@ -22,13 +16,8 @@
       --lime-dim:    rgba(154,255,110,0.55);
       --blue:        #6eb4ff;
       --blue-dim:    rgba(110,180,255,0.55);
-      --candy-head:  #ff4fa0;
-      --candy-body:  rgba(255,110,180,0.80);
-      --food-color:  #ffd94a;
-      --food-glow:   rgba(255,217,74,0.7);
+      --gold:        #ffd700;
       --bg:          #0d0618;
-      --bg2:         #160a2a;
-      --grid-line:   rgba(255,255,255,0.04);
       --hud-glass:   rgba(255,255,255,0.07);
       --border:      rgba(255,255,255,0.12);
       --font-head:   'Bubblegum Sans', cursive;
@@ -50,19 +39,12 @@
       user-select: none;
     }
 
-    /* =====================================================
-       STARFIELD BACKGROUND
-    ====================================================== */
     #starfield {
       position: fixed;
       inset: 0;
       z-index: 0;
-      pointer-events: none;
     }
 
-    /* =====================================================
-       MAIN WRAPPER
-    ====================================================== */
     #app {
       position: relative;
       z-index: 1;
@@ -72,34 +54,23 @@
       gap: 14px;
     }
 
-    /* =====================================================
-       TITLE
-    ====================================================== */
     #title-bar {
       text-align: center;
-      line-height: 1;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
     }
     #title-bar h1 {
       font-family: var(--font-head);
-      font-size: clamp(28px, 5vw, 42px);
-      letter-spacing: 1px;
+      font-size: clamp(32px, 6vw, 54px);
       background: linear-gradient(90deg, var(--pink), var(--blue), var(--lime));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 0 12px var(--pink-dim));
-    }
-    #title-bar .subtitle {
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      margin-top: 3px;
+      filter: drop-shadow(0 0 15px var(--pink-dim));
     }
 
-    /* =====================================================
-       HUD — score strip above canvas
-    ====================================================== */
     #hud {
       display: flex;
       gap: 12px;
@@ -109,49 +80,26 @@
     .hud-card {
       flex: 1;
       background: var(--hud-glass);
-      border: 0.5px solid var(--border);
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 8px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
+      backdrop-filter: blur(4px);
     }
-    .hud-label {
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-    }
-    .hud-value {
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-      line-height: 1;
-    }
-    #score-card .hud-value { color: var(--lime); text-shadow: 0 0 10px var(--lime-dim); }
-    #hi-card   .hud-value { color: var(--pink); text-shadow: 0 0 10px var(--pink-dim); }
-    #speed-card .hud-value { color: var(--blue); text-shadow: 0 0 10px rgba(110,180,255,.6); }
+    .hud-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+    .hud-value { font-size: 22px; font-weight: 900; }
+    #score-card .hud-value { color: var(--lime); }
+    #hi-card .hud-value { color: var(--pink); }
+    #power-card .hud-value { font-size: 14px; color: var(--blue); }
 
-    /* =====================================================
-       CANVAS CONTAINER
-    ====================================================== */
     #canvas-wrap {
       position: relative;
-      border-radius: 16px;
+      border-radius: 20px;
       overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow:
-        0 0 0 1px rgba(255,110,180,0.1),
-        0 0 60px rgba(255,110,180,0.08),
-        0 0 120px rgba(110,180,255,0.06);
+      border: 2px solid var(--border);
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
     }
-    canvas {
-      display: block;
-    }
+    canvas { display: block; }
 
-    /* =====================================================
-       OVERLAYS (shared base)
-    ====================================================== */
     .overlay {
       position: absolute;
       inset: 0;
@@ -159,691 +107,419 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      background: rgba(13, 6, 24, 0.82);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      transition: opacity 0.35s ease;
+      background: rgba(13, 6, 24, 0.85);
+      backdrop-filter: blur(8px);
       z-index: 10;
-    }
-    .overlay.hidden { opacity: 0; pointer-events: none; }
-
-    .overlay-title {
-      font-family: var(--font-head);
-      font-size: clamp(30px, 6vw, 52px);
-      letter-spacing: 1px;
-      text-align: center;
-      line-height: 1.1;
-    }
-    .overlay-sub {
-      font-size: 13px;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 0.5px;
+      transition: 0.4s;
+      padding: 20px;
       text-align: center;
     }
-    .overlay-score {
-      font-family: var(--font-head);
-      font-size: 20px;
-      color: var(--lime);
-      text-shadow: 0 0 12px var(--lime-dim);
-    }
+    .overlay.hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
 
-    /* fancy key badge */
-    .key-hint {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.45);
+    .menu-box {
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-    .key {
-      background: rgba(255,255,255,0.1);
-      border: 0.5px solid rgba(255,255,255,0.2);
-      border-radius: 6px;
-      padding: 3px 9px;
+    .how-to {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .how-item {
       font-size: 11px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 1px;
+      background: rgba(255,255,255,0.05);
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
     }
+    .how-item strong { display: block; color: var(--lime); margin-bottom: 2px; }
 
-    /* CTA buttons */
     .btn-candy {
       font-family: var(--font-head);
-      font-size: 18px;
-      letter-spacing: 1px;
-      padding: 10px 36px;
+      font-size: 22px;
+      padding: 12px 40px;
       border-radius: 50px;
       border: none;
       cursor: pointer;
-      transition: transform 0.1s ease, filter 0.1s ease;
-    }
-    .btn-candy:active { transform: scale(0.96); }
-
-    .btn-start {
       background: linear-gradient(135deg, var(--pink), #c035ff);
-      color: #fff;
-      box-shadow: 0 0 24px rgba(255,110,180,0.4);
+      color: white;
+      box-shadow: 0 10px 20px rgba(255,110,180,0.3);
+      transition: 0.2s;
     }
-    .btn-start:hover { filter: brightness(1.15); }
+    .btn-candy:hover { transform: scale(1.05); filter: brightness(1.2); }
 
-    .btn-restart {
-      background: linear-gradient(135deg, var(--lime), #35ffc4);
-      color: #0d0618;
-      box-shadow: 0 0 24px rgba(154,255,110,0.4);
+    #power-timer {
+      height: 4px;
+      background: var(--blue);
+      width: 0%;
+      margin-top: 4px;
+      transition: width 0.1s linear;
+      border-radius: 2px;
     }
-    .btn-restart:hover { filter: brightness(1.1); }
-
-    /* =====================================================
-       INSTRUCTIONS STRIP
-    ====================================================== */
-    #instructions {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 560px;
-    }
-    #instructions span {
-      font-size: 11px;
-      color: rgba(255,255,255,0.28);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    #instructions .key { font-size: 10px; padding: 2px 6px; }
   </style>
 </head>
 <body>
 
-<!-- =====================================================
-     STARFIELD CANVAS
-====================================================== -->
 <canvas id="starfield"></canvas>
 
 <div id="app">
-
-  <!-- TITLE -->
   <div id="title-bar">
     <h1>GummyWorm.js</h1>
-    <p class="subtitle">Sugar Rush Edition</p>
   </div>
 
-  <!-- HUD -->
   <div id="hud">
     <div class="hud-card" id="score-card">
-      <div class="hud-label">Score</div>
+      <div class="hud-label">Sugar Score</div>
       <div class="hud-value" id="score-val">0</div>
     </div>
-    <div class="hud-card" id="hi-card">
-      <div class="hud-label">Highest Sugar Rush</div>
-      <div class="hud-value" id="hi-val">0</div>
+    <div class="hud-card" id="power-card">
+      <div class="hud-label">Power Up</div>
+      <div class="hud-value" id="power-val">None</div>
+      <div id="power-timer"></div>
     </div>
-    <div class="hud-card" id="speed-card">
-      <div class="hud-label">Speed</div>
-      <div class="hud-value" id="speed-val">1</div>
+    <div class="hud-card" id="hi-card">
+      <div class="hud-label">High Score</div>
+      <div class="hud-value" id="hi-val">0</div>
     </div>
   </div>
 
-  <!-- GAME CANVAS -->
   <div id="canvas-wrap">
     <canvas id="game"></canvas>
 
-    <!-- START OVERLAY -->
     <div class="overlay" id="overlay-start">
-      <div class="overlay-title" style="background:linear-gradient(90deg,var(--pink),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-        Press Space<br>to Start
+      <div class="menu-box">
+        <h2 style="font-family:var(--font-head); font-size:36px; color:var(--blue)">Sweet Adventure!</h2>
+        <div class="how-to">
+          <div class="how-item"><strong>Move</strong>Arrow Keys / WASD</div>
+          <div class="how-item"><strong>Crystals</strong>Grow & Score</div>
+          <div class="how-item" style="border-color:var(--blue)"><strong>Mint</strong>Slow Motion</div>
+          <div class="how-item" style="border-color:var(--gold)"><strong>Honey</strong>Invincibility</div>
+        </div>
+        <button class="btn-candy" id="btn-start">START GAME</button>
       </div>
-      <div class="overlay-sub">Eat Sugar Crystals · Avoid the walls · Don't bite yourself</div>
-      <div class="key-hint">
-        <span class="key">SPACE</span> or click the button below
-      </div>
-      <button class="btn-candy btn-start" id="btn-start">Start Game</button>
     </div>
 
-    <!-- GAME OVER OVERLAY -->
     <div class="overlay hidden" id="overlay-gameover">
-      <div class="overlay-title" style="color:var(--pink);text-shadow:0 0 20px var(--pink-dim);">
-        Sugar Crash!
-      </div>
-      <div class="overlay-score" id="final-score">Score: 0</div>
-      <div class="overlay-sub" id="new-record" style="color:var(--lime);display:none;">🍬 New High Score!</div>
-      <button class="btn-candy btn-restart" id="btn-restart">Play Again</button>
-      <div class="key-hint"><span class="key">R</span> to restart</div>
+      <h2 style="font-family:var(--font-head); font-size:48px; color:var(--pink)">Sugar Crash!</h2>
+      <div id="final-score" style="font-size:24px; margin-bottom:20px;">Score: 0</div>
+      <button class="btn-candy" id="btn-restart" style="background:linear-gradient(135deg, var(--lime), #35ffc4); color:#000;">TRY AGAIN</button>
     </div>
   </div>
-
-  <!-- CONTROLS HINT -->
-  <div id="instructions">
-    <span><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> or Arrow Keys — steer</span>
-    <span><span class="key">R</span> — restart</span>
-  </div>
-
-</div><!-- /app -->
+</div>
 
 <script>
-/* =====================================================================
-   GummyWorm.js — Main Game Script
-   Sections:
-     1.  Constants & Configuration
-     2.  Starfield (background effect)
-     3.  Game State
-     4.  Canvas Setup
-     5.  Input Handling
-     6.  Game Logic (update, collision)
-     7.  Rendering (drawWorm, drawFood, drawGrid, drawHUD)
-     8.  Animation / Game Loop
-     9.  Overlay / UI helpers
-     10. Bootstrap
-===================================================================== */
+/* ---- CONSTANTS & CONFIG ---- */
+const CELL = 22;
+const COLS = 26;
+const ROWS = 26;
+const W = COLS * CELL;
+const H = ROWS * CELL;
 
-/* ---- 1. CONSTANTS & CONFIGURATION ---------------------------------- */
-const CELL   = 20;          // grid cell size in pixels
-const COLS   = 28;          // grid columns
-const ROWS   = 28;          // grid rows
-const W      = COLS * CELL; // canvas width
-const H      = ROWS * CELL; // canvas height
+const State = { IDLE: 'idle', PLAYING: 'playing', DYING: 'dying', GAMEOVER: 'gameover' };
+const PowerType = { NONE: 'None', SLOW: 'Blue Mint', GHOST: 'Golden Honey' };
 
-const BASE_INTERVAL  = 130; // ms between ticks at speed 1
-const MIN_INTERVAL   = 55;  // fastest tick (speed cap)
-const SPEED_EVERY    = 5;   // items before speed bump
+// Gummy Color Palette
+const CANDY_COLORS = [
+  '#ff4fa0', // Cherry Pink
+  '#9aff6e', // Lime Green
+  '#6eb4ff', // Blue Raspberry
+  '#ffd94a', // Lemon Yellow
+  '#ff9d4a'  // Orange
+];
 
-// Gummy worm palette — pink/magenta theme
-const WORM_HEAD_COLOR = '#ff4fa0';
-const WORM_BODY_COLOR = 'rgba(255,90,180,0.82)';
-const WORM_SHINE      = 'rgba(255,255,255,0.35)';
-const WORM_SHADOW     = 'rgba(180,0,100,0.4)';
+let state = State.IDLE;
+let snake = [];
+let dir = { x: 1, y: 0 };
+let nextDir = { x: 1, y: 0 };
+let food = { x: 0, y: 0, type: 0 }; 
+let particles = [];
+let score = 0;
+let hiScore = parseInt(localStorage.getItem('gw_hiscore_v2') || '0', 10);
+let activePower = PowerType.NONE;
+let powerTime = 0;
+let colorCycleIndex = 0;
+const POWER_DURATION = 5000;
 
-// Food / Sugar Crystal
-const FOOD_COLOR  = '#ffd94a';
-const FOOD_GLOW   = 'rgba(255,220,80,0.7)';
-const FOOD_INNER  = 'rgba(255,255,200,0.9)';
-
-/* ---- 2. STARFIELD --------------------------------------------------- */
-(function initStarfield() {
-  const sf   = document.getElementById('starfield');
-  const ctx  = sf.getContext('2d');
-  let stars  = [];
-
-  function resize() {
-    sf.width  = window.innerWidth;
-    sf.height = window.innerHeight;
-    stars = Array.from({ length: 120 }, () => ({
-      x:  Math.random() * sf.width,
-      y:  Math.random() * sf.height,
-      r:  Math.random() * 1.2 + 0.2,
-      a:  Math.random(),
-      da: (Math.random() - 0.5) * 0.005
-    }));
-  }
-
-  function tick() {
-    ctx.clearRect(0, 0, sf.width, sf.height);
-    for (const s of stars) {
-      s.a = Math.max(0.05, Math.min(1, s.a + s.da));
-      if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${s.a.toFixed(2)})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(tick);
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  tick();
-})();
-
-/* ---- 3. GAME STATE -------------------------------------------------- */
-const State = {
-  IDLE:     'idle',
-  PLAYING:  'playing',
-  GAMEOVER: 'gameover',
-  DYING:    'dying'  // worm dissolve animation
-};
-
-let state       = State.IDLE;
-let snake       = [];       // array of {x, y} grid positions, index 0 = head
-let dir         = { x: 1, y: 0 };  // current direction
-let nextDir     = { x: 1, y: 0 };  // queued direction (applied next tick)
-let food        = { x: 0, y: 0 };
-let score       = 0;
-let hiScore     = parseInt(localStorage.getItem('gw_hiscore') || '0', 10);
-let speedLevel  = 1;
-let tickInterval = BASE_INTERVAL;
-let lastTick    = 0;
+let lastTick = 0;
 let lastRafTime = 0;
-let animId      = null;
-
-// Smooth rendering: each segment has a "visual" position that lags behind the grid
-let segPositions = [];  // array of {vx, vy} in pixel space (for squish effect)
-
-// Death animation state
+let segPositions = [];
 let dissolveAlpha = 1.0;
 
-// Food pulse state
-let foodPulse = 0;
+/* ---- CANVAS SETUP ---- */
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+canvas.width = W;
+canvas.height = H;
 
-/* ---- 4. CANVAS SETUP ----------------------------------------------- */
-const gameCanvas = document.getElementById('game');
-const gctx       = gameCanvas.getContext('2d');
-gameCanvas.width  = W;
-gameCanvas.height = H;
+/* ---- BACKGROUND ANIMATION ---- */
+const sf = document.getElementById('starfield');
+const sctx = sf.getContext('2d');
+let stars = [];
+function initSF() {
+  sf.width = window.innerWidth; sf.height = window.innerHeight;
+  stars = Array.from({length: 80}, () => ({
+    x: Math.random() * sf.width, y: Math.random() * sf.height,
+    s: Math.random() * 2 + 1, o: Math.random()
+  }));
+}
+function drawSF() {
+  sctx.clearRect(0,0,sf.width,sf.height);
+  stars.forEach(s => {
+    s.y += s.s; if(s.y > sf.height) s.y = -10;
+    sctx.fillStyle = `rgba(255, 110, 180, ${s.o * 0.3})`;
+    sctx.beginPath(); sctx.arc(s.x, s.y, s.s, 0, 6.28); sctx.fill();
+  });
+  requestAnimationFrame(drawSF);
+}
+window.addEventListener('resize', initSF);
+initSF(); drawSF();
 
-/* ---- 5. INPUT HANDLING --------------------------------------------- */
-const KEY_MAP = {
-  ArrowUp:    { x: 0, y: -1 }, w: { x: 0, y: -1 }, W: { x: 0, y: -1 },
-  ArrowDown:  { x: 0, y:  1 }, s: { x: 0, y:  1 }, S: { x: 0, y:  1 },
-  ArrowLeft:  { x: -1, y: 0 }, a: { x: -1, y: 0 }, A: { x: -1, y: 0 },
-  ArrowRight: { x:  1, y: 0 }, d: { x:  1, y: 0 }, D: { x:  1, y: 0 }
-};
-
-document.addEventListener('keydown', (e) => {
-  // Start game
-  if (e.code === 'Space' && state === State.IDLE) { startGame(); return; }
-
-  // Restart
-  if ((e.key === 'r' || e.key === 'R') && (state === State.GAMEOVER || state === State.IDLE)) {
-    startGame(); return;
-  }
-
-  // Direction input — only during active play
-  if (state !== State.PLAYING) return;
-
-  const d = KEY_MAP[e.key];
-  if (!d) return;
-
-  // Prevent 180° reversal
-  if (d.x === -dir.x && d.y === -dir.y) return;
-  nextDir = d;
-
-  // Prevent default scrolling for arrow keys
-  if (e.key.startsWith('Arrow')) e.preventDefault();
-});
-
-/* ---- 6. GAME LOGIC -------------------------------------------------- */
-
-/** Place food at a random cell not occupied by the snake */
+/* ---- GAME LOGIC ---- */
 function placeFood() {
-  let pos;
   const occupied = new Set(snake.map(s => `${s.x},${s.y}`));
+  let x, y;
   do {
-    pos = {
-      x: Math.floor(Math.random() * COLS),
-      y: Math.floor(Math.random() * ROWS)
-    };
-  } while (occupied.has(`${pos.x},${pos.y}`));
-  food = pos;
+    x = Math.floor(Math.random() * COLS);
+    y = Math.floor(Math.random() * ROWS);
+  } while (occupied.has(`${x},${y}`));
+  
+  const rng = Math.random();
+  let type = 0;
+  if(rng > 0.94) type = 2; 
+  else if(rng > 0.88) type = 1; 
+
+  food = { x, y, type, shape: Math.floor(Math.random() * 3) };
 }
 
-/** Initialize / reset game state and start */
+function spawnParticles(x, y, color) {
+  for(let i=0; i<12; i++) {
+    particles.push({
+      x: x * CELL + CELL/2, y: y * CELL + CELL/2,
+      vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6,
+      life: 1.0, color: color
+    });
+  }
+}
+
 function startGame() {
-  // Build initial worm in centre, 4 segments long, heading right
-  const cx = Math.floor(COLS / 2);
-  const cy = Math.floor(ROWS / 2);
+  const cx = Math.floor(COLS/2);
+  const cy = Math.floor(ROWS/2);
+  colorCycleIndex = 0;
+  
+  // Initialize snake with alternating colors
   snake = [
-    { x: cx,     y: cy },
-    { x: cx - 1, y: cy },
-    { x: cx - 2, y: cy },
-    { x: cx - 3, y: cy }
+    {x:cx, y:cy, color: CANDY_COLORS[0]},
+    {x:cx-1, y:cy, color: CANDY_COLORS[1]},
+    {x:cx-2, y:cy, color: CANDY_COLORS[2]}
   ];
-
-  // Initialize smooth visual positions at exact grid pixels
-  segPositions = snake.map(s => ({ vx: s.x * CELL, vy: s.y * CELL }));
-
-  dir       = { x: 1, y: 0 };
-  nextDir   = { x: 1, y: 0 };
-  score     = 0;
-  speedLevel = 1;
-  tickInterval = BASE_INTERVAL;
-  dissolveAlpha = 1.0;
-  foodPulse = 0;
-
+  
+  segPositions = snake.map(s => ({vx: s.x*CELL, vy: s.y*CELL}));
+  dir = {x:1, y:0}; nextDir = {x:1, y:0};
+  score = 0; activePower = PowerType.NONE; powerTime = 0;
   placeFood();
-  updateHUD();
-
   state = State.PLAYING;
-  hideOverlay('overlay-start');
-  hideOverlay('overlay-gameover');
-
-  // Reset RAF
-  lastTick    = performance.now();
-  lastRafTime = performance.now();
-  if (animId) cancelAnimationFrame(animId);
-  animId = requestAnimationFrame(gameLoop);
+  document.getElementById('overlay-start').classList.add('hidden');
+  document.getElementById('overlay-gameover').classList.add('hidden');
+  lastTick = performance.now();
 }
 
-/** Advance snake one grid step; return false if collision */
 function tick() {
-  // Apply queued direction
-  dir = { ...nextDir };
+  dir = {...nextDir};
+  const head = snake[0];
+  const newHeadPos = { x: head.x + dir.x, y: head.y + dir.y };
 
-  // Compute new head position
-  const head    = snake[0];
-  const newHead = { x: head.x + dir.x, y: head.y + dir.y };
+  if (newHeadPos.x < 0 || newHeadPos.x >= COLS || newHeadPos.y < 0 || newHeadPos.y >= ROWS) return false;
 
-  // --- Wall collision ---
-  if (newHead.x < 0 || newHead.x >= COLS || newHead.y < 0 || newHead.y >= ROWS) {
-    return false; // death
+  if (activePower !== PowerType.GHOST) {
+    for (let i = 0; i < snake.length - 1; i++) {
+      if (snake[i].x === newHeadPos.x && snake[i].y === newHeadPos.y) return false;
+    }
   }
 
-  // --- Self collision (skip tail tip — it's about to move) ---
-  for (let i = 0; i < snake.length - 1; i++) {
-    if (snake[i].x === newHead.x && snake[i].y === newHead.y) return false;
-  }
-
-  // --- Food collision ---
-  const ate = newHead.x === food.x && newHead.y === food.y;
-
-  // Shift snake forward: prepend new head
+  const ate = newHeadPos.x === food.x && newHeadPos.y === food.y;
+  
+  // Cycle colors for the new head
+  colorCycleIndex = (colorCycleIndex + 1) % CANDY_COLORS.length;
+  const newHead = { ...newHeadPos, color: CANDY_COLORS[colorCycleIndex] };
+  
   snake.unshift(newHead);
-  // Prepend a new visual position (starts at old head's visual pos for smooth lag)
-  segPositions.unshift({ vx: segPositions[0]?.vx ?? newHead.x * CELL, vy: segPositions[0]?.vy ?? newHead.y * CELL });
+  segPositions.unshift({vx: segPositions[0].vx, vy: segPositions[0].vy});
 
   if (ate) {
-    score++;
-    // Speed up every SPEED_EVERY crystals consumed
-    speedLevel = Math.floor(score / SPEED_EVERY) + 1;
-    tickInterval = Math.max(MIN_INTERVAL, BASE_INTERVAL - (speedLevel - 1) * 12);
+    score += (food.type > 0 ? 5 : 1);
+    const pColor = food.type === 1 ? '#6eb4ff' : (food.type === 2 ? '#ffd700' : '#ffd94a');
+    spawnParticles(food.x, food.y, pColor);
+    
+    if (food.type === 1) { activePower = PowerType.SLOW; powerTime = POWER_DURATION; }
+    else if (food.type === 2) { activePower = PowerType.GHOST; powerTime = POWER_DURATION; }
+    
+    if (score > hiScore) { hiScore = score; localStorage.setItem('gw_hiscore_v2', hiScore); }
     placeFood();
-    // Update high score immediately
-    if (score > hiScore) {
-      hiScore = score;
-      localStorage.setItem('gw_hiscore', hiScore);
-    }
-    updateHUD();
   } else {
-    // Remove tail
-    snake.pop();
-    segPositions.pop();
+    snake.pop(); segPositions.pop();
   }
-
-  return true; // alive
+  return true;
 }
 
-/** Trigger game-over death animation */
-function triggerDeath() {
-  state = State.DYING;
-  dissolveAlpha = 1.0;
+/* ---- RENDERING ---- */
+function drawCrystal(f, pulse) {
+  const cx = f.x * CELL + CELL/2;
+  const cy = f.y * CELL + CELL/2;
+  const s = (CELL/2 - 4) + Math.sin(pulse)*2;
+  
+  ctx.save();
+  ctx.translate(cx, cy);
+  
+  let color = '#ffd94a';
+  if(f.type === 1) color = '#6eb4ff';
+  if(f.type === 2) color = '#ffd700';
+
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = color;
+  ctx.fillStyle = color;
+
+  ctx.beginPath();
+  if(f.shape === 0) ctx.arc(0, 0, s, 0, 6.28); 
+  else if(f.shape === 1) { 
+    ctx.rotate(Math.PI/4); ctx.rect(-s,-s,s*2,s*2);
+  } else { 
+    ctx.moveTo(0, s/2);
+    ctx.bezierCurveTo(s, -s, s*2, s/2, 0, s);
+    ctx.bezierCurveTo(-s*2, s/2, -s, -s, 0, s/2);
+  }
+  ctx.fill();
+  ctx.restore();
 }
 
-/* ---- 7. RENDERING --------------------------------------------------- */
-
-/** Draw the background grid */
-function drawGrid() {
-  gctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  gctx.lineWidth   = 0.5;
-
-  for (let c = 0; c <= COLS; c++) {
-    gctx.beginPath();
-    gctx.moveTo(c * CELL, 0);
-    gctx.lineTo(c * CELL, H);
-    gctx.stroke();
-  }
-  for (let r = 0; r <= ROWS; r++) {
-    gctx.beginPath();
-    gctx.moveTo(0, r * CELL);
-    gctx.lineTo(W, r * CELL);
-    gctx.stroke();
-  }
-}
-
-/** Draw one gummy segment (rounded rect + highlight + shadow) */
-function drawSegment(vx, vy, isHead, alpha) {
-  const pad  = isHead ? 1 : 2;   // head slightly larger
-  const rad  = isHead ? 9 : 7;   // corner radius
-  const size = CELL - pad * 2;
-  const x    = vx + pad;
-  const y    = vy + pad;
-
-  gctx.save();
-  gctx.globalAlpha = alpha;
-
-  // Drop shadow (gives gummy depth)
-  gctx.shadowColor  = WORM_SHADOW;
-  gctx.shadowBlur   = isHead ? 10 : 6;
-  gctx.shadowOffsetY = 2;
-
-  // Main gummy body
-  gctx.beginPath();
-  roundRect(gctx, x, y, size, size, rad);
-  gctx.fillStyle = isHead ? WORM_HEAD_COLOR : WORM_BODY_COLOR;
-  gctx.fill();
-
-  // Shine highlight (top-left gleam)
-  gctx.shadowColor = 'transparent';
-  gctx.shadowBlur  = 0;
-  gctx.shadowOffsetY = 0;
-
-  const shinePad = 3;
-  gctx.beginPath();
-  roundRect(gctx, x + shinePad, y + shinePad, size * 0.42, size * 0.28, 3);
-  gctx.fillStyle = WORM_SHINE;
-  gctx.fill();
-
-  // Head: draw eyes
-  if (isHead) {
-    drawEyes(vx, vy, alpha);
+function render() {
+  ctx.fillStyle = '#0d0618';
+  ctx.fillRect(0,0,W,H);
+  
+  // Subtle Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+  for(let i=0; i<=COLS; i++) {
+    ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(W,i*CELL); ctx.stroke();
   }
 
-  gctx.restore();
-}
+  const time = performance.now() / 200;
+  drawCrystal(food, time);
 
-/** Draw cute gummy eyes on the head, oriented toward movement direction */
-function drawEyes(vx, vy, alpha) {
-  // Eye positions relative to direction
-  const cx = vx + CELL / 2;
-  const cy = vy + CELL / 2;
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+    ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillRect(p.x, p.y, 3, 3);
+  });
+  ctx.globalAlpha = 1;
 
-  // Offset perpendicular to direction for two eyes
-  const perp = { x: -dir.y, y: dir.x };
-  const fwd  = { x: dir.x, y: dir.y };
-
-  const eyeOff = 3.5; // distance from center along perpendicular
-  const eyeFwd = 2.5; // how far forward
-
-  const e1 = {
-    x: cx + perp.x * eyeOff + fwd.x * eyeFwd,
-    y: cy + perp.y * eyeOff + fwd.y * eyeFwd
-  };
-  const e2 = {
-    x: cx - perp.x * eyeOff + fwd.x * eyeFwd,
-    y: cy - perp.y * eyeOff + fwd.y * eyeFwd
-  };
-
-  gctx.save();
-  gctx.globalAlpha = alpha;
-
-  for (const e of [e1, e2]) {
-    // Outer eye (white-ish sclera)
-    gctx.beginPath();
-    gctx.arc(e.x, e.y, 2.6, 0, Math.PI * 2);
-    gctx.fillStyle = 'rgba(255,255,255,0.92)';
-    gctx.fill();
-
-    // Pupil
-    gctx.beginPath();
-    gctx.arc(e.x + fwd.x * 0.5, e.y + fwd.y * 0.5, 1.4, 0, Math.PI * 2);
-    gctx.fillStyle = '#1a0033';
-    gctx.fill();
-  }
-  gctx.restore();
-}
-
-/**
- * Draw the gummy worm using smooth interpolated (lagged) positions
- * to create the squish / gelatinous feel.
- */
-function drawWorm(alpha) {
-  // Easing coefficient for segment lag — earlier segments catch up faster
-  const EASE_BASE = 0.32; // head catch-up speed
-
-  for (let i = 0; i < snake.length; i++) {
-    // Target position (exact grid pixel)
-    const targetX = snake[i].x * CELL;
-    const targetY = snake[i].y * CELL;
-
-    // Ease toward target — tail segments lag more (lower ease coefficient)
-    const ease = EASE_BASE * Math.max(0.35, 1 - i * 0.04);
+  const isGhost = activePower === PowerType.GHOST;
+  
+  // Render Worm Segments
+  snake.forEach((s, i) => {
+    const targetX = s.x * CELL;
+    const targetY = s.y * CELL;
+    const ease = 0.35 - (i * 0.005);
     segPositions[i].vx += (targetX - segPositions[i].vx) * ease;
     segPositions[i].vy += (targetY - segPositions[i].vy) * ease;
 
-    const isHead = i === 0;
-    drawSegment(segPositions[i].vx, segPositions[i].vy, isHead, alpha);
-  }
+    ctx.save();
+    ctx.globalAlpha = isGhost ? 0.4 : (state === State.DYING ? dissolveAlpha : 0.9);
+    ctx.translate(segPositions[i].vx + CELL/2, segPositions[i].vy + CELL/2);
+    
+    // Multi-color Gummy Body
+    ctx.fillStyle = isGhost ? '#fffad1' : s.color;
+    
+    // Gummy Glow Effect
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = ctx.fillStyle;
+
+    const r = i === 0 ? 10 : 8;
+    ctx.beginPath(); 
+    ctx.roundRect(-CELL/2+2, -CELL/2+2, CELL-4, CELL-4, r); 
+    ctx.fill();
+
+    // Shine highlight for "gelatin" look
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath();
+    ctx.roundRect(-CELL/2+5, -CELL/2+5, CELL/3, CELL/5, 2);
+    ctx.fill();
+
+    // Eyes for the head
+    if(i === 0) {
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.arc(-4, -2, 2.5, 0, 6.28); ctx.fill();
+      ctx.beginPath(); ctx.arc(4, -2, 2.5, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-4.5, -3, 0.8, 0, 6.28); ctx.fill();
+      ctx.beginPath(); ctx.arc(3.5, -3, 0.8, 0, 6.28); ctx.fill();
+    }
+    ctx.restore();
+  });
 }
 
-/** Draw the Sugar Crystal food item with pulse/glow effect */
-function drawFood() {
-  foodPulse += 0.07;
-  const pulse  = Math.sin(foodPulse) * 0.5 + 0.5;  // 0 → 1 → 0
-  const glowR  = 12 + pulse * 8;
-  const size   = CELL - 4;
-  const fx     = food.x * CELL + 2;
-  const fy     = food.y * CELL + 2;
-  const cx     = food.x * CELL + CELL / 2;
-  const cy     = food.y * CELL + CELL / 2;
-
-  gctx.save();
-
-  // Outer glow
-  const grad = gctx.createRadialGradient(cx, cy, 2, cx, cy, glowR + 4);
-  grad.addColorStop(0, FOOD_GLOW);
-  grad.addColorStop(1, 'transparent');
-  gctx.beginPath();
-  gctx.arc(cx, cy, glowR + 4, 0, Math.PI * 2);
-  gctx.fillStyle = grad;
-  gctx.fill();
-
-  // Crystal body — rotated diamond square
-  gctx.translate(cx, cy);
-  gctx.rotate(Math.PI / 4 + foodPulse * 0.3);
-  gctx.translate(-CELL / 2 + 2, -CELL / 2 + 2);
-
-  gctx.shadowColor = FOOD_GLOW;
-  gctx.shadowBlur  = 14 + pulse * 8;
-
-  roundRect(gctx, 2, 2, size - 4, size - 4, 4);
-  gctx.fillStyle = FOOD_COLOR;
-  gctx.fill();
-
-  // Inner sparkle
-  gctx.shadowBlur  = 0;
-  roundRect(gctx, 6, 6, size - 12, size - 12, 2);
-  gctx.fillStyle = FOOD_INNER;
-  gctx.fill();
-
-  gctx.restore();
-}
-
-/** Helper: rounded rectangle path (polyfill for older browsers) */
-function roundRect(ctx, x, y, w, h, r) {
-  if (ctx.roundRect) {
-    ctx.roundRect(x, y, w, h, r);
+function updateUI(dt) {
+  document.getElementById('score-val').textContent = score;
+  document.getElementById('hi-val').textContent = hiScore;
+  document.getElementById('power-val').textContent = activePower;
+  
+  const bar = document.getElementById('power-timer');
+  if(activePower !== PowerType.NONE) {
+    powerTime -= dt;
+    bar.style.width = (powerTime / POWER_DURATION * 100) + '%';
+    if(powerTime <= 0) activePower = PowerType.NONE;
   } else {
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
+    bar.style.width = '0%';
   }
 }
 
-/** Render a single frame */
-function render(dying) {
-  // Background
-  gctx.fillStyle = '#0d0618';
-  gctx.fillRect(0, 0, W, H);
-
-  drawGrid();
-  drawFood();
-
-  const alpha = dying ? dissolveAlpha : 1.0;
-  drawWorm(alpha);
-}
-
-/* ---- 8. GAME LOOP --------------------------------------------------- */
-
-function gameLoop(timestamp) {
+function loop(timestamp) {
   const dt = timestamp - lastRafTime;
   lastRafTime = timestamp;
 
   if (state === State.PLAYING) {
-    // Render every frame for smooth interpolation
-    render(false);
+    updateUI(dt);
+    let speed = Math.max(50, 130 - (score * 1.5));
+    if(activePower === PowerType.SLOW) speed = 240;
 
-    // Advance game logic on fixed tick interval
-    if (timestamp - lastTick >= tickInterval) {
+    if (timestamp - lastTick >= speed) {
       lastTick = timestamp;
-      const alive = tick();
-      if (!alive) triggerDeath();
+      if (!tick()) { state = State.DYING; dissolveAlpha = 1; }
     }
-
-    animId = requestAnimationFrame(gameLoop);
-
   } else if (state === State.DYING) {
-    // Dissolve worm over ~600ms
-    dissolveAlpha -= dt / 600;
-    render(true);
-
+    dissolveAlpha -= 0.02;
     if (dissolveAlpha <= 0) {
-      dissolveAlpha = 0;
       state = State.GAMEOVER;
-      showGameOver();
-      return; // stop loop
+      document.getElementById('overlay-gameover').classList.remove('hidden');
+      document.getElementById('final-score').textContent = "Score: " + score;
     }
-
-    animId = requestAnimationFrame(gameLoop);
-
-  } else {
-    // IDLE or GAMEOVER — just keep drawing static frame
-    render(false);
-    animId = requestAnimationFrame(gameLoop);
   }
+
+  render();
+  requestAnimationFrame(loop);
 }
 
-/* ---- 9. OVERLAY / UI HELPERS --------------------------------------- */
+const keys = {
+  ArrowUp: {x:0, y:-1}, w: {x:0, y:-1},
+  ArrowDown: {x:0, y:1}, s: {x:0, y:1},
+  ArrowLeft: {x:-1, y:0}, a: {x:-1, y:0},
+  ArrowRight: {x:1, y:0}, d: {x:1, y:0}
+};
+window.addEventListener('keydown', e => {
+  if (keys[e.key]) {
+    const move = keys[e.key];
+    if (move.x !== -dir.x && move.y !== -dir.y) nextDir = move;
+    e.preventDefault();
+  }
+});
 
-function updateHUD() {
-  document.getElementById('score-val').textContent = score;
-  document.getElementById('hi-val').textContent    = hiScore;
-  document.getElementById('speed-val').textContent = speedLevel;
-}
+document.getElementById('btn-start').onclick = startGame;
+document.getElementById('btn-restart').onclick = startGame;
 
-function showGameOver() {
-  const newRecord = score >= hiScore && score > 0;
-  document.getElementById('final-score').textContent = `Score: ${score}`;
-  const nr = document.getElementById('new-record');
-  nr.style.display = newRecord ? 'block' : 'none';
-  updateHUD();
-  showOverlay('overlay-gameover');
-}
-
-function showOverlay(id) {
-  document.getElementById(id).classList.remove('hidden');
-}
-function hideOverlay(id) {
-  document.getElementById(id).classList.add('hidden');
-}
-
-/* ---- 10. BOOTSTRAP ------------------------------------------------- */
-
-// Button handlers
-document.getElementById('btn-start').addEventListener('click', startGame);
-document.getElementById('btn-restart').addEventListener('click', startGame);
-
-// Draw initial idle frame (empty grid)
-updateHUD();
-
-// Start the idle loop (renders the empty board + overlays)
-animId = requestAnimationFrame(gameLoop);
-
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
